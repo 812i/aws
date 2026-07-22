@@ -64,31 +64,35 @@ elif service_choice == "Amazon Rekognition (تحليل الألوان وتولي
   if uploaded_file is not None:
     pil_image = Image.open(uploaded_file)
     st.image(pil_image, caption="الصورة المرفوعة", use_container_width=True)
-
-    # تحويل الصورة إلى مصفوفة واستخراج ألوان واضحة ومميزة من أجزاء مختلفة
-    img_resized = pil_image.resize((100, 100))
-    arr = np.array(img_resized)
-    
-    # أخذ عينات من مناطق مختلفة في الصورة لضمان تنوع الألوان ووضوحها
-    h, w, _ = arr.shape
-    c_center = arr[h//2, w//2]     # اللون في المنتصف
-    c_top = arr[h//4, w//4]         # لون أعلى الصورة
-    c_bottom = arr[(3*h)//4, (3*w)//4] # لون أسفل الصورة
-    c_corner = arr[0, 0]             # لون الزاوية
-    
-    hex_main = f"#{c_center[0]:02x}{c_center[1]:02x}{c_center[2]:02x}"
-    hex_col1 = f"#{c_top[0]:02x}{c_top[1]:02x}{c_top[2]:02x}"
-    hex_col2 = f"#{c_center[0]:02x}{c_center[1]:02x}{c_center[2]:02x}"
-    hex_col3 = f"#{c_bottom[0]:02x}{c_bottom[1]:02x}{c_bottom[2]:02x}"
-    hex_col4 = f"#{c_corner[0]:02x}{c_corner[1]:02x}{c_corner[2]:02x}"
   else:
+    # استخدام رابط صورة افتراضية مستقر ومضمون 100%
+    default_image_url = "https://picsum.photos/id/106/600/400"
     st.image(
-        "https://images.unsplash.com/photo-1579783902614-a3fb3927b675",
-        caption="صورة افتراضية فنية",
+        default_image_url,
+        caption="صورة افتراضية تجريبية",
         use_container_width=True,
     )
-    hex_main = "#3498db"
-    hex_col1, hex_col2, hex_col3, hex_col4 = "#2c3e50", "#3498db", "#1abc9c", "#e74c3c"
+    # تحميل الصورة الافتراضية برمجياً ليتم تحليل ألوانها حتى لو لم ترفع المستخدمة صورة
+    import urllib.request
+    from io import BytesIO
+    with urllib.request.urlopen(default_image_url) as url:
+        pil_image = Image.open(BytesIO(url.read()))
+
+  # استخراج ألوان واضحة ومميزة من أجزاء مختلفة من الصورة
+  img_resized = pil_image.resize((100, 100))
+  arr = np.array(img_resized)
+  
+  h, w, _ = arr.shape
+  c_center = arr[h//2, w//2]     
+  c_top = arr[h//4, w//4]         
+  c_bottom = arr[(3*h)//4, (3*w)//4] 
+  c_corner = arr[0, 0]             
+  
+  hex_main = f"#{c_center[0]:02x}{c_center[1]:02x}{c_center[2]:02x}"
+  hex_col1 = f"#{c_top[0]:02x}{c_top[1]:02x}{c_top[2]:02x}"
+  hex_col2 = f"#{c_center[0]:02x}{c_center[1]:02x}{c_center[2]:02x}"
+  hex_col3 = f"#{c_bottom[0]:02x}{c_bottom[1]:02x}{c_bottom[2]:02x}"
+  hex_col4 = f"#{c_corner[0]:02x}{c_corner[1]:02x}{c_corner[2]:02x}"
 
   if st.button("استخراج لوحة الألوان السائدة"):
     with st.spinner("جاري تحليل الألوان ومعالجة البكسلات بدقة عبر AWS..."):
