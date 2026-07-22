@@ -1,4 +1,4 @@
-Import streamlit as st
+import streamlit as st 
 
 # إعداد الصفحة
 st.set_page_config(
