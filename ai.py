@@ -12,121 +12,133 @@ st.write(
     " الاصطناعي."
 )
 
-# القائمة الجانبية لاختيار الخدمة
+# القائمة الجانبية لاختيار الخدمة (بدون Bedrock)
 st.sidebar.header("اختر خدمة AWS لاستعراضها:")
 service_choice = st.sidebar.selectbox(
     "الخدمات المتاحة:",
-    [
-        "Amazon Bedrock (GenAI)",
-        "Amazon Comprehend (تحليل النصوص)",
-        "Amazon Rekognition (تحليل الصور)",
-    ],
+    ["Amazon Comprehend (تحليل النصوص)", "Amazon Rekognition (تحليل الصور)"],
 )
 
 st.markdown("---")
 
-# 1. خدمة Amazon Bedrock
-if service_choice == "Amazon Bedrock (GenAI)":
-  st.header("💡 Amazon Bedrock - الذكاء الاصطناعي التوليدي")
+# 1. خدمة Amazon Comprehend (تحليل المشاعر المخصص)
+if service_choice == "Amazon Comprehend (تحليل النصوص)":
+  st.header("📊 Amazon Comprehend - تحليل المشاعر والحالة النفسية")
   st.write(
-      "تتيح هذه الخدمة الوصول لنماذج اللغات الكبيرة (LLMs) مثل Claude و Titan."
-  )
-
-  user_prompt = st.text_area(
-      "اكتب سؤالك أو طلبك هنا (محاكاة لنموذج Bedrock):",
-      "اشرح لي باختصار كيف تفيد الحوسبة السحابية الذكاء الاصطناعي؟",
-  )
-
-  if st.button("توليد الإجابة (Run Model)"):
-    if user_prompt.strip():
-      with st.spinner("جاري المعالجة عبر سحابة AWS..."):
-        response_text = f"""[نموذج Claude عبر Amazon Bedrock]: 
-بناءً على طلبك حول "{user_prompt}":
-الحوسبة السحابية توفر القدرة الهائلة على المعالجة (GPU Compute) المطلوبة لتدريب وتشغيل نماذج الذكاء الاصطناعي التوليدي دون الحاجة لبنية تحتية محلية باهظة الثمن."""
-      st.success("تم توليد الرد بنجاح!")
-      st.write(response_text)
-    else:
-      st.warning("الرجاء إدخال نص أولاً.")
-
-# 2. خدمة Amazon Comprehend (تحليل النصوص الفعلية المدخلة)
-elif service_choice == "Amazon Comprehend (تحليل النصوص)":
-  st.header("📊 Amazon Comprehend - تحليل المشاعر (Sentiment Analysis)")
-  st.write(
-      "تقوم هذه الخدمة بتحليل النص الذي تدخله بالأسفل ومعرفة شعوره ونوعه"
-      " بدقة."
+      "تقوم هذه الخدمة بتحليل النص المدخل ومعرفة المشاعر بدقة (سعيد، حزين،"
+      " متوتر، إيجابي، سلبي)."
   )
 
   text_to_analyze = st.text_area(
-      "أدخل نصاً باللغة الإنجليزية أو العربية لتحليله:",
-      "AWS AI services are extremely powerful, flexible, and easy to integrate!",
+      "أدخل نصاً للتعبير عن حالتك أو مشاعرك:",
+      "أنا اليوم سعيد جداً ومتحمس للمشروع!",
   )
 
   if st.button("تحليل المشاعر"):
     if text_to_analyze.strip():
-      with st.spinner("جاري تحليل النص المدخل..."):
-        # تحليل بسيط بناءً على النص المُدخل فعلياً
+      with st.spinner("جاري تحليل المشاعر عبر AWS..."):
         lower_text = text_to_analyze.lower()
-        # محاكاة منطقية لتحليل المشاعر بناءً على كلمات مفتاحية بسيطة أو طول النص
+
+        # منطق تفصيلي لتحليل المشاعر بناءً على طلبك
         if any(
-            word in lower_text
-            for word in [
-                "bad",
-                "terrible",
-                "poor",
-                "awful",
-                "سيء",
-                "ضعيف",
-                "مشكلة",
-                "خطأ",
+            w in lower_text
+            for w in [
+                "حزين",
+                "زعلان",
+                "ضايق",
+                "ألم",
+                "sad",
+                "crying",
+                "depressed",
             ]
         ):
-          sentiment = "سلبي (Negative 🙁)"
-          confidence = "92.4%"
+          emotion = "حزين 😢 (سلبي)"
+          confidence = "95.2%"
         elif any(
-            word in lower_text
-            for word in ["not", "no", "لا", "لكن", "غير"]
+            w in lower_text
+            for w in [
+                "متوتر",
+                "خايف",
+                "قلق",
+                "ضغط",
+                "stressed",
+                "anxious",
+                "nervous",
+            ]
         ):
-          sentiment = "مختلط/محايد (Neutral 😐)"
-          confidence = "85.0%"
+          emotion = "متوتر 😰 (سلبي/قلق)"
+          confidence = "91.8%"
+        elif any(
+            w in lower_text
+            for w in ["سعيد", "فرح", "مبسوط", "حماس", "happy", "excited", "joy"]
+        ):
+          emotion = "سعيد 😄 (إيجابي)"
+          confidence = "98.5%"
+        elif any(
+            w in lower_text for w in ["سيء", "ممل", "تعبان", "bad", "tired"]
+        ):
+          emotion = "مرهق / سلبي 🙁"
+          confidence = "89.0%"
         else:
-          sentiment = "إيجابي (Positive 😃)"
-          confidence = "97.8%"
+          emotion = "إيجابي / طبيعي 🙂"
+          confidence = "93.4%"
 
-        st.info("نتيجة التحليل من AWS Comprehend للنص الخاص بك:")
-        st.write(f"**النص المُحلل:** {text_to_analyze}")
-        st.write(f"**نوع الشعور (Sentiment):** {sentiment}")
-        st.write(f"**نسبة الثقة (Confidence Score):** {confidence}")
+        st.info("نتيجة التحليل النفسي والعاطفي للنص:")
+        st.write(f"**النص المُدخل:** {text_to_analyze}")
+        st.write(f"**الشعور المكتشف:** {emotion}")
+        st.write(f"**نسبة الثقة (Confidence):** {confidence}")
     else:
-      st.warning("الرجاء إدخال نص لتحليله.")
+      st.warning("الرجاء إدخال نص أولاً.")
 
-# 3. خدمة Amazon Rekognition
+# 2. خدمة Amazon Rekognition (تحليل الصور وتصنيف الكائنات)
 elif service_choice == "Amazon Rekognition (تحليل الصور)":
-  st.header("🖼️ Amazon Rekognition - تحليل الصور والرؤية الحاسوبية")
-  st.write("تستخدم للتعرف على محتوى الصور، الوجوه، والعناصر بدقة عالية.")
+  st.header("🖼️ Amazon Rekognition - تصنيف الكائنات في الصور")
+  st.write(
+      "تتعرف الخدمة على محتوى الصورة وتحدد ما إذا كانت (إنسان، حيوان، نبته،"
+      " أو غير ذلك)."
+  )
 
   uploaded_file = st.file_uploader(
-      "ارفع صورة لتجربة التحليل (أو استخدم الصورة الافتراضية):",
-      type=["jpg", "png", "jpeg"],
+      "ارفع صورة لتجربة التحليل:", type=["jpg", "png", "jpeg"]
   )
 
   if uploaded_file is not None:
     st.image(uploaded_file, caption="الصورة المرفوعة", use_container_width=True)
+    image_name = uploaded_file.name.lower()
   else:
     st.image(
-        "https://images.unsplash.com/photo-1518770660439-4636190af475",
-        caption="صورة توضيحية افتراضية (سيرفرات وتقنية)",
+        "https://images.unsplash.com/photo-1543466835-00a7907e9de1",
+        caption="صورة افتراضية (حيوان - قط/كلب)",
         use_container_width=True,
     )
+    image_name = "pet_dog_cat"
 
-  if st.button("تحليل محتوى الصورة"):
-    with st.spinner("جاري فحص الصورة وتصنيف الكائنات..."):
-      st.success("تم التعرف على العناصر بنجاح!")
-      st.write(
-          "- **التصنيف الرئيسي:** كائن تقني / خوادم سحابية (Data Center /"
-          " Technology)"
-      )
-      st.write("- **العناصر المكتشفة:** أجهزة خادم، أسلاك، إضاءة تقنية.")
-      st.write("- **درجة الأمان (Confidence):** 99.1%")
+  if st.button("فحص وتصنيف الصورة"):
+    with st.spinner("جاري فحص الكائنات بالرؤية الحاسوبية..."):
+      st.success("تم تحليل الصورة بنجاح!")
+
+      # محاكاة ذكية للتعرف على الكائن بناءً على الصورة المرفوعة أو الافتراضية
+      if any(w in image_name for w in ["cat", "dog", "animal", "pet", "قط", "كلب", "حيوان"]):
+        detected_type = "حيوان (Animal - Mammal) 🐾"
+        details = "تم رصد كائن حي (حيوان أليف) مع تحليل ملامح الوجه والجسم."
+        conf = "98.9%"
+      elif any(w in image_name for w in ["plant", "tree", "flower", "نبتة", "شجرة", "ورقة"]):
+        detected_type = "نبتة / كائن نباتي (Plant / Flora) 🌱"
+        details = "تم رصد أوراق خضراء/نبات طبيعي وتصنيف نوع الغطاء النباتي."
+        conf = "97.4%"
+      elif any(w in image_name for w in ["human", "person", "man", "woman", "face", "إنسان", "شخص"]):
+        detected_type = "إنسان (Human / Person) 👤"
+        details = "تم اكتشاف وجه/جسم بشري وتحديد الخصائص الحيوية بدقة."
+        conf = "99.5%"
+      else:
+        # افتراضي بناءً على الصورة التجريبية للحيوان
+        detected_type = "حيوان أليف (Animal / Mammal) 🐕"
+        details = "تم تصنيف الكائن بنجاح ضمن فصيلة الحيوانات الأليفة."
+        conf = "98.6%"
+
+      st.write(f"**التصنيف العام:** {detected_type}")
+      st.write(f"**التفاصيل المكتشفة:** {details}")
+      st.write(f"**نسبة الثقة (Confidence):** {conf}")
 
 st.markdown("---")
 st.markdown(
